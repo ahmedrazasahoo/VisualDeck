@@ -1,0 +1,299 @@
+<template>
+  <div class="vertical-card layered-block-card" :style="{
+    '--primary-color-rgba': primaryColorRgba,
+    '--secondary-color-rgba': secondaryColorRgba
+  }">
+    <div class="layer-wrapper">
+      <div class="layer-block image-layer">
+        <img :src="card.image" :alt="card.title" :class="['card-image', `image-shape-${imageShape}`]" />
+        <div class="layer-overlay"></div>
+        <div v-if="showIdBadge" class="layer-badge">{{ card.id }}</div>
+      </div>
+
+      <div class="layer-block title-layer">
+        <h3 class="layer-title">{{ card.title }}</h3>
+      </div>
+
+      <div v-if="showCategory" class="layer-block category-layer">
+        <div class="category-content">
+          <span class="layer-category">{{ card.category }}</span>
+        </div>
+      </div>
+
+      <div v-if="showDescription" class="layer-block description-layer">
+        <p class="layer-description">{{ card.description }}</p>
+      </div>
+
+      <div v-if="showPrice" class="layer-block price-layer">
+        <div class="price-content">
+          <span class="price-label">Price</span>
+          <span class="layer-price">{{ card.price }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+
+const props = defineProps({
+  card: { type: Object, required: true },
+  primaryColor: { type: String, default: '#667eea' },
+  secondaryColor: { type: String, default: '#764ba2' },
+  primaryColorOpacity: { type: Number, default: 1 },
+  secondaryColorOpacity: { type: Number, default: 1 },
+  imageShape: { type: String, default: 'rounded' },
+  showIdBadge: { type: Boolean, default: true },
+  showCategory: { type: Boolean, default: true },
+  showDescription: { type: Boolean, default: true },
+  showPrice: { type: Boolean, default: true },
+  cardBackgroundColor: { type: String, default: '#e8eaf0' },
+  cardTitleColor: { type: String, default: '#ffffff' },
+  cardDescriptionColor: { type: String, default: '#333333' },
+  cardPriceColor: { type: String, default: '#ffffff' },
+  cardCategoryBgColor: { type: String, default: '#667eea' }
+});
+
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : { r: 102, g: 126, b: 234 };
+};
+
+const primaryColorRgba = computed(() => {
+  const rgb = hexToRgb(props.primaryColor);
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${props.primaryColorOpacity})`;
+});
+
+const secondaryColorRgba = computed(() => {
+  const rgb = hexToRgb(props.secondaryColor);
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${props.secondaryColorOpacity})`;
+});
+</script>
+
+<style scoped>
+.vertical-card {
+  width: var(--card-width, 300px);
+  height: var(--card-height, 520px);
+  background: v-bind(cardBackgroundColor);
+  border-radius: var(--card-radius, 16px);
+  overflow: visible;
+  padding: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vertical-card:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+}
+
+.layer-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+}
+
+.layer-block {
+  width: 100%;
+  position: relative;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.layer-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.image-layer {
+  height: 180px;
+  background: linear-gradient(135deg, var(--primary-color-rgba) 0%, var(--secondary-color-rgba) 100%);
+  transform: rotate(-2deg);
+  margin-bottom: 0.5rem;
+}
+
+.vertical-card:hover .image-layer {
+  transform: rotate(0deg) translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: clip-path 0.3s ease, transform 0.3s ease;
+  opacity: 0.9;
+  padding: var(--image-padding, 0px);
+}
+
+.vertical-card:hover .card-image {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.layer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.3) 100%);
+  z-index: 1;
+}
+
+.layer-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: white;
+  color: #333;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: var(--badge-size, 0.7rem);
+  font-weight: 800;
+  letter-spacing: 1px;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.title-layer {
+  padding: 1.25rem var(--content-padding, 16px);
+  background: var(--secondary-color-rgba);
+  transform: rotate(1deg) translateX(-8px);
+}
+
+.vertical-card:hover .title-layer {
+  transform: rotate(0deg) translateX(0) translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+}
+
+.layer-title {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: var(--heading-size, 1.3rem);
+  font-weight: 800;
+  color: v-bind(cardTitleColor);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.category-layer {
+  padding: 0.75rem var(--content-padding, 16px);
+  background: white;
+  transform: rotate(-1deg) translateX(10px);
+}
+
+.vertical-card:hover .category-layer {
+  transform: rotate(0deg) translateX(0) translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+}
+
+.category-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.layer-category {
+  display: inline-block;
+  background: v-bind(cardCategoryBgColor);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px;
+  font-size: var(--badge-size, 0.7rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.description-layer {
+  flex: 1;
+  padding: 1.25rem var(--content-padding, 16px);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(1deg) translateX(-5px);
+}
+
+.vertical-card:hover .description-layer {
+  transform: rotate(0deg) translateX(0) translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+}
+
+.layer-description {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: var(--text-size, 0.85rem);
+  color: v-bind(cardDescriptionColor);
+  line-height: 1.6;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.price-layer {
+  padding: 1.25rem var(--content-padding, 16px);
+  background: linear-gradient(135deg, var(--primary-color-rgba) 0%, var(--secondary-color-rgba) 100%);
+  transform: rotate(-2deg) translateX(8px);
+}
+
+.vertical-card:hover .price-layer {
+  transform: rotate(0deg) translateX(0) translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+}
+
+.price-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-label {
+  font-size: var(--badge-size, 0.7rem);
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.layer-price {
+  font-size: var(--price-size, 1.5rem);
+  font-weight: 900;
+  color: v-bind(cardPriceColor);
+  letter-spacing: 1px;
+}
+
+.image-shape-rounded { border-radius: 12px; }
+.image-shape-square { border-radius: 0; clip-path: none; }
+.image-shape-circle { clip-path: circle(40% at 50% 50%); }
+.image-shape-hexagon { clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+.image-shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.image-shape-pentagon { clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
+.image-shape-octagon { clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%); }
+.image-shape-blob { clip-path: polygon(50% 0%, 83% 12%, 100% 43%, 94% 78%, 68% 100%, 32% 100%, 6% 78%, 0% 43%, 17% 12%); }
+</style>
