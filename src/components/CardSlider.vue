@@ -206,6 +206,50 @@ const props = defineProps({
   cardContentBgColor: {
     type: String,
     default: '#fafafa'
+  },
+  cardCategoryColor: {
+    type: String,
+    default: '#ffffff'
+  },
+  cardDividerBgColor: {
+    type: String,
+    default: '#667eea'
+  },
+  cardRibbonBgColor: {
+    type: String,
+    default: '#667eea'
+  },
+  cardTopSectionBgColor: {
+    type: String,
+    default: '#667eea'
+  },
+  cardBottomSectionBgColor: {
+    type: String,
+    default: '#667eea'
+  },
+  cardGlassOverlayBgColor: {
+    type: String,
+    default: 'rgba(255, 255, 255, 0.3)'
+  },
+  cardFrameBgColor: {
+    type: String,
+    default: '#ffffff'
+  },
+  cardBorderBgColor: {
+    type: String,
+    default: '#f0f0f0'
+  },
+  cardStripesBgColor: {
+    type: String,
+    default: '#667eea'
+  },
+  cardSidebarBgColor: {
+    type: String,
+    default: '#667eea'
+  },
+  cardLayerBgColor: {
+    type: String,
+    default: '#ffffff'
   }
 });
 
@@ -503,6 +547,17 @@ onUnmounted(() => {
             :card-badge-bg-color="cardBadgeBgColor"
             :card-overlay-color="cardOverlayColor"
             :card-content-bg-color="cardContentBgColor"
+            :card-category-color="cardCategoryColor"
+            :card-divider-bg-color="cardDividerBgColor"
+            :card-ribbon-bg-color="cardRibbonBgColor"
+            :card-top-section-bg-color="cardTopSectionBgColor"
+            :card-bottom-section-bg-color="cardBottomSectionBgColor"
+            :card-glass-overlay-bg-color="cardGlassOverlayBgColor"
+            :card-frame-bg-color="cardFrameBgColor"
+            :card-border-bg-color="cardBorderBgColor"
+            :card-stripes-bg-color="cardStripesBgColor"
+            :card-sidebar-bg-color="cardSidebarBgColor"
+            :card-layer-bg-color="cardLayerBgColor"
           />
         </div>
       </template>

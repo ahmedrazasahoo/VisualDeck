@@ -42,7 +42,9 @@ const props = defineProps({
   cardTitleColor: { type: String, default: '#ffffff' },
   cardDescriptionColor: { type: String, default: '#333333' },
   cardPriceColor: { type: String, default: '#ffffff' },
-  cardCategoryBgColor: { type: String, default: '#667eea' }
+  cardCategoryBgColor: { type: String, default: '#667eea' },
+  cardTopSectionBgColor: { type: String, default: '#667eea' },
+  cardBottomSectionBgColor: { type: String, default: '#667eea' }
 });
 
 const hexToRgb = (hex) => {
@@ -87,7 +89,7 @@ const secondaryColorRgba = computed(() => {
 }
 
 .zigzag-top {
-  background: linear-gradient(135deg, var(--primary-color-rgba) 0%, var(--secondary-color-rgba) 100%);
+  background: v-bind(cardTopSectionBgColor);
   padding: 1.5rem var(--content-padding, 16px);
   clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
   padding-bottom: 2rem;
@@ -173,7 +175,7 @@ const secondaryColorRgba = computed(() => {
 }
 
 .zigzag-bottom {
-  background: linear-gradient(135deg, var(--primary-color-rgba) 0%, var(--secondary-color-rgba) 100%);
+  background: v-bind(cardBottomSectionBgColor);
   padding: 1rem var(--content-padding, 16px);
   clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
   padding-top: 1.5rem;
