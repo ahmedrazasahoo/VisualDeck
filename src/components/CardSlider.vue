@@ -151,6 +151,10 @@ const props = defineProps({
     type: Number,
     default: 6
   },
+  scrollDirection: {
+    type: String,
+    default: 'left'
+  },
   backgroundType: {
     type: String,
     default: 'gradient'
@@ -344,23 +348,52 @@ const backgroundStyle = computed(() => {
 });
 
 const scrollContainer = ref(null);
+const trackInner = ref(null);
 const animationFrame = ref(null);
 const entranceAnimationComplete = ref(false);
 const animatedCardsCount = ref(0);
 const cardsToAnimate = ref(0);
+let scrollPosition = 0;
+let isPaused = false;
+let bounceDirection = 1;
+
+const getHalfWidth = () => {
+  if (!trackInner.value) return 0;
+  return trackInner.value.scrollWidth / 2;
+};
+
+const applyTransform = () => {
+  if (trackInner.value) {
+    trackInner.value.style.transform = `translateX(${-scrollPosition}px)`;
+  }
+};
 
 const autoScroll = () => {
-  if (scrollContainer.value) {
-    const currentScroll = scrollContainer.value.scrollLeft;
-    const scrollWidth = scrollContainer.value.scrollWidth;
-    const halfWidth = scrollWidth / 2;
-
-    // Smooth increment
-    scrollContainer.value.scrollLeft = currentScroll + props.scrollSpeed;
-
-    // Seamless reset for infinite loop
-    if (scrollContainer.value.scrollLeft >= halfWidth) {
-      scrollContainer.value.scrollLeft = scrollContainer.value.scrollLeft - halfWidth;
+  if (!isPaused && trackInner.value) {
+    const halfWidth = getHalfWidth();
+    if (halfWidth > 0) {
+      if (props.scrollDirection === 'both') {
+        scrollPosition += props.scrollSpeed * bounceDirection;
+        if (scrollPosition >= halfWidth) {
+          scrollPosition = halfWidth;
+          bounceDirection = -1;
+        } else if (scrollPosition <= 0) {
+          scrollPosition = 0;
+          bounceDirection = 1;
+        }
+      } else if (props.scrollDirection === 'right') {
+        scrollPosition -= props.scrollSpeed;
+        if (scrollPosition <= 0) {
+          scrollPosition += halfWidth;
+        }
+      } else {
+        // default: left
+        scrollPosition += props.scrollSpeed;
+        if (scrollPosition >= halfWidth) {
+          scrollPosition -= halfWidth;
+        }
+      }
+      applyTransform();
     }
   }
   animationFrame.value = requestAnimationFrame(autoScroll);
@@ -379,95 +412,78 @@ const playEntranceAnimation = () => {
   cardsToAnimate.value = calculateCardsToFit();
 
   // Reset scroll position to show card ID 1 first
-  if (scrollContainer.value) {
-    scrollContainer.value.scrollLeft = 0;
-  }
+  scrollPosition = 0;
+  applyTransform();
 
   const animateNextCard = (cardIndex) => {
     if (cardIndex >= cardsToAnimate.value) {
-      // All cards animated, wait a bit then start horizontal scrolling
       setTimeout(() => {
         entranceAnimationComplete.value = true;
-        autoScroll();
-      }, props.animationDelay); // Wait before starting scroll (uses same delay)
+        isPaused = false;
+      }, props.animationDelay);
       return;
     }
 
     animatedCardsCount.value = cardIndex + 1;
 
-    // Animate next card after delay
     setTimeout(() => {
       animateNextCard(cardIndex + 1);
-    }, props.animationDelay); // Dynamic delay between each card
+    }, props.animationDelay);
   };
 
-  // Add small delay before starting first card (ID 1)
+  isPaused = true;
   setTimeout(() => {
     animateNextCard(0);
   }, 300);
 };
 
 const handleMouseEnter = () => {
-  if (animationFrame.value) {
-    cancelAnimationFrame(animationFrame.value);
-  }
+  isPaused = true;
 };
 
 const handleMouseLeave = () => {
   if (props.entranceAnimation !== 'none' && !entranceAnimationComplete.value) {
-    return; // Don't start auto scroll during entrance animation
+    return;
   }
-  autoScroll();
+  isPaused = false;
 };
 
 // Watch for changes in entranceAnimation prop
 watch(() => props.entranceAnimation, (newVal) => {
-  if (animationFrame.value) {
-    cancelAnimationFrame(animationFrame.value);
-  }
-
   if (newVal !== 'none') {
     playEntranceAnimation();
   } else {
     entranceAnimationComplete.value = true;
     animatedCardsCount.value = 0;
-    autoScroll();
+    isPaused = false;
   }
 });
 
 // Watch for card style changes and reset animation state
 watch(() => props.cardStyle, () => {
-  // Cancel any ongoing animations
-  if (animationFrame.value) {
-    cancelAnimationFrame(animationFrame.value);
-  }
-
-  // Reset scroll position to start
-  if (scrollContainer.value) {
-    scrollContainer.value.scrollLeft = 0;
-  }
-
-  // Reset animation state
+  scrollPosition = 0;
+  applyTransform();
   entranceAnimationComplete.value = false;
   animatedCardsCount.value = 0;
 
-  // Restart animation or scrolling based on current settings
   setTimeout(() => {
     if (props.entranceAnimation !== 'none') {
       playEntranceAnimation();
     } else {
       entranceAnimationComplete.value = true;
-      autoScroll();
+      isPaused = false;
     }
   }, 100);
 });
 
 onMounted(() => {
+  // Single RAF loop runs forever; isPaused controls movement
+  autoScroll();
   if (props.entranceAnimation !== 'none') {
     playEntranceAnimation();
   } else {
     entranceAnimationComplete.value = true;
-    autoScroll();
+    isPaused = false;
   }
 });
 
@@ -497,8 +513,7 @@ onUnmounted(() => {
     '--secondary-color': secondaryColor,
     '--primary-color-opacity': primaryColorOpacity,
     '--secondary-color-opacity': secondaryColorOpacity,
-    '--card-opacity': cardOpacity,
-    '--left-spacing': `${leftSpacing}rem`
+    '--card-opacity': cardOpacity
   }">
     <!-- Video Background -->
     <video
@@ -511,12 +526,19 @@ onUnmounted(() => {
       playsinline
     ></video>
 
+    <!-- Left spacing overlay: hidden during entrance animation so it never covers the first card -->
+    <div
+      class="left-spacing-overlay"
+      :style="{ width: `${entranceAnimationComplete || entranceAnimation === 'none' ? leftSpacing : 0}rem` }"
+    ></div>
+
     <div
       ref="scrollContainer"
       class="carousel-track"
       @mouseenter="handleMouseEnter"
       @mouseleave="handleMouseLeave"
     >
+      <div ref="trackInner" class="carousel-track-inner">
       <!-- Duplicate cards for infinite loop effect -->
       <template v-for="n in 2" :key="`set-${n}-${cardStyle}`">
         <div
@@ -567,6 +589,7 @@ onUnmounted(() => {
           />
         </div>
       </template>
+      </div>
     </div>
   </div>
 </template>
@@ -594,28 +617,34 @@ onUnmounted(() => {
   z-index: 0;
 }
 
+.left-spacing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
 .carousel-track {
-  display: flex;
-  gap: var(--card-gap, 24px);
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 1rem 0 1rem var(--left-spacing, 6rem);
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  perspective: 1000px;
-  -webkit-perspective: 1000px;
+  overflow: hidden;
+  padding: 1rem 0;
   position: relative;
   z-index: 1;
   min-height: calc(var(--card-height, 520px) + 2rem);
+  display: flex;
   align-items: center;
+  width: 100%;
 }
 
-.carousel-track::-webkit-scrollbar {
-  display: none;
+.carousel-track-inner {
+  display: flex;
+  gap: var(--card-gap, 24px);
+  align-items: center;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .card-wrapper {
@@ -624,9 +653,6 @@ onUnmounted(() => {
   position: relative;
   transition: opacity 0.3s ease;
   opacity: var(--card-opacity, 1);
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   min-width: var(--card-width, 300px);

@@ -2,6 +2,44 @@
 import { ref, computed } from 'vue';
 import CardSlider from './components/CardSlider.vue';
 import * as XLSX from 'xlsx';
+import {
+  Settings,
+  X,
+  Download,
+  Link,
+  Table2,
+  LayoutGrid,
+  Layers,
+  Type,
+  Star,
+  Square,
+  RectangleHorizontal,
+  Image,
+  AlignLeft,
+  DollarSign,
+  Tag,
+  ArrowLeftRight,
+  ArrowUpDown,
+  Palette,
+  Paintbrush,
+  Droplets,
+  Ban,
+  Blend,
+  CircleDot,
+  ImageIcon,
+  Play,
+  Upload,
+  RotateCcw,
+  ChevronDown,
+  Boxes,
+  Clapperboard,
+  CheckCircle2,
+  Gauge,
+  Move,
+  PanelRight,
+  ScanLine,
+  Wand2,
+} from 'lucide-vue-next';
 
 const cardStyles = ['fullwidth-zigzag', 'fullwidth-wave', 'fullwidth-curved', 'layered-block', 'geometric-block', 'curved-block', 'staggered', 'wave', 'striped', 'zigzag', 'corner', 'circular', 'ribbon', 'modern', 'classic', 'minimal', 'elegant', 'bold', 'compact', 'luxury', 'vibrant', 'shadow', 'gradient', 'neon', 'glassmorphism', 'neumorphism', 'metro', 'polaroid', 'magazine', 'stacked', 'retro', 'split', 'diagonal', 'overlap', 'sidebar', 'floating'];
 
@@ -44,6 +82,7 @@ const entranceAnimation = ref('none');
 const animationDelay = ref(600);
 const cardOpacity = ref(1);
 const leftSpacing = ref(6);
+const scrollDirection = ref('left');
 
 // Collapsible section states
 const sectionsOpen = ref({
@@ -326,6 +365,7 @@ const resetSettings = () => {
   animationDelay.value = 600;
   cardOpacity.value = 1;
   leftSpacing.value = 6;
+  scrollDirection.value = 'left';
   primaryColorOpacity.value = 1;
   secondaryColorOpacity.value = 1;
   backgroundType.value = 'gradient';
@@ -719,10 +759,7 @@ const setColorValue = (key, value) => {
       <div class="data-table-header">
         <h3 class="data-table-title">Fetched Excel Data</h3>
         <button class="close-table-btn" @click="showDataTable = false" title="Close table">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
+          <X :size="20" />
         </button>
       </div>
       <div class="data-table-wrapper">
@@ -781,6 +818,7 @@ const setColorValue = (key, value) => {
         :animation-delay="animationDelay"
         :card-opacity="cardOpacity"
         :left-spacing="leftSpacing"
+        :scroll-direction="scrollDirection"
         :background-type="backgroundType"
         :background-value="backgroundValue"
         :custom-background-color="customBackgroundColor"
@@ -802,11 +840,7 @@ const setColorValue = (key, value) => {
 
     <!-- Floating Settings Button -->
     <button class="settings-btn" @click="togglePanel">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M12 1v6m0 6v6m-6-6h6m6 0h-6"/>
-        <path d="M19.07 4.93l-4.24 4.24m0 5.66l4.24 4.24M4.93 4.93l4.24 4.24m0 5.66l-4.24 4.24"/>
-      </svg>
+      <Settings :size="20" />
       <span>Settings</span>
     </button>
 
@@ -814,18 +848,11 @@ const setColorValue = (key, value) => {
     <div :class="['settings-panel', { open: isPanelOpen }]">
       <div class="panel-header">
         <div class="header-content">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M12 1v6m0 6v6m-6-6h6m6 0h-6"/>
-            <path d="M19.07 4.93l-4.24 4.24m0 5.66l4.24 4.24M4.93 4.93l4.24 4.24m0 5.66l-4.24 4.24"/>
-          </svg>
+          <Settings :size="24" />
           <h2 class="panel-title">Customize Cards</h2>
         </div>
         <button class="close-btn" @click="togglePanel" title="Close settings">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
+          <X :size="24" />
         </button>
       </div>
 
@@ -834,25 +861,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('dataFetch')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
+              <Download :size="20" />
               <h3 class="section-title">Fetch Excel Data</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.dataFetch }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.dataFetch }]" />
           </button>
 
           <div v-show="sectionsOpen.dataFetch" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                </svg>
+                <Link :size="16" />
                 Public Excel File URL
               </label>
               <input
@@ -865,14 +883,8 @@ const setColorValue = (key, value) => {
             </div>
 
             <button class="fetch-btn" @click="fetchData" :disabled="isFetching">
-              <svg v-if="!isFetching" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              <svg v-else class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-              </svg>
+              <Download v-if="!isFetching" :size="18" />
+              <RotateCcw v-else :size="18" class="spinner" />
               {{ isFetching ? 'Fetching...' : 'Fetch Excel Data' }}
             </button>
           </div>
@@ -882,17 +894,10 @@ const setColorValue = (key, value) => {
         <div v-if="showDataTable && tableHeaders.length" class="collapsible-section">
           <button class="section-header" @click="toggleSection('columnMapping')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <line x1="3" y1="9" x2="21" y2="9"/>
-                <line x1="3" y1="15" x2="21" y2="15"/>
-                <line x1="9" y1="3" x2="9" y2="21"/>
-              </svg>
+              <Table2 :size="20" />
               <h3 class="section-title">Column Mapping</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.columnMapping }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.columnMapping }]" />
           </button>
 
           <div v-show="sectionsOpen.columnMapping" class="section-content">
@@ -905,7 +910,7 @@ const setColorValue = (key, value) => {
                   <option value="">— None —</option>
                   <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -916,7 +921,7 @@ const setColorValue = (key, value) => {
                   <option value="">— None —</option>
                   <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -927,7 +932,7 @@ const setColorValue = (key, value) => {
                   <option value="">— None —</option>
                   <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -938,7 +943,7 @@ const setColorValue = (key, value) => {
                   <option value="">— None —</option>
                   <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -949,7 +954,7 @@ const setColorValue = (key, value) => {
                   <option value="">— None —</option>
                   <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -960,7 +965,7 @@ const setColorValue = (key, value) => {
                   <option value="">— None —</option>
                   <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -1003,25 +1008,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('design')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7"/>
-                <rect x="14" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/>
-              </svg>
+              <LayoutGrid :size="20" />
               <h3 class="section-title">Card Design</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.design }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.design }]" />
           </button>
           
           <div v-show="sectionsOpen.design" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                </svg>
+                <Layers :size="16" />
                 Card Style
               </label>
               <div class="dropdown-wrapper enhanced-dropdown">
@@ -1075,19 +1071,13 @@ const setColorValue = (key, value) => {
                     <option value="split">✂️ Split</option>
                   </optgroup>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <path d="M21 15l-5-5L5 21"/>
-                </svg>
+                <ImageIcon :size="16" />
                 Image Shape
               </label>
               <div class="shape-selector-grid">
@@ -1109,10 +1099,7 @@ const setColorValue = (key, value) => {
 
             <div class="preview-badge-wrapper">
               <div class="current-style-badge" :style="{ background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)` }">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                  <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
+                <CheckCircle2 :size="16" />
                 {{ currentStyle }}
               </div>
             </div>
@@ -1123,14 +1110,10 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('sections')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 11H3v2h6m-6 4h6v2H3m0-12h6v2H3m9 4h9v2h-9m9 4h-9v2h9m-9-12h9v2h-9"/>
-              </svg>
+              <ScanLine :size="20" />
               <h3 class="section-title">Visible Sections</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.sections }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.sections }]" />
           </button>
           
           <div v-show="sectionsOpen.sections" class="section-content">
@@ -1171,25 +1154,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('typography')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="4 7 4 4 20 4 20 7"/>
-                <line x1="9" y1="20" x2="15" y2="20"/>
-                <line x1="12" y1="4" x2="12" y2="20"/>
-              </svg>
+              <Type :size="20" />
               <h3 class="section-title">Typography</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.typography }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.typography }]" />
           </button>
           
           <div v-show="sectionsOpen.typography" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-                  <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
-                </svg>
+                <Type :size="16" />
                 Heading Size: {{ headingFontSize }}rem
               </label>
               <input type="range" v-model="headingFontSize" min="0.8" max="2" step="0.05" class="range-input" />
@@ -1201,12 +1175,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="17" y1="10" x2="3" y2="10"/>
-                  <line x1="21" y1="6" x2="3" y2="6"/>
-                  <line x1="21" y1="14" x2="3" y2="14"/>
-                  <line x1="17" y1="18" x2="3" y2="18"/>
-                </svg>
+                <AlignLeft :size="16" />
                 Text Size: {{ textFontSize }}rem
               </label>
               <input type="range" v-model="textFontSize" min="0.6" max="1.5" step="0.05" class="range-input" />
@@ -1218,10 +1187,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="1" x2="12" y2="23"/>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
+                <DollarSign :size="16" />
                 Price Size: {{ priceFontSize }}rem
               </label>
               <input type="range" v-model="priceFontSize" min="0.7" max="2" step="0.05" class="range-input" />
@@ -1233,10 +1199,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                  <line x1="7" y1="7" x2="7.01" y2="7"/>
-                </svg>
+                <Tag :size="16" />
                 Badge Size: {{ badgeFontSize }}rem
               </label>
               <input type="range" v-model="badgeFontSize" min="0.5" max="1.2" step="0.05" class="range-input" />
@@ -1252,22 +1215,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('styling')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
+              <Wand2 :size="20" />
               <h3 class="section-title">Card Styling</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.styling }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.styling }]" />
           </button>
           
           <div v-show="sectionsOpen.styling" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                </svg>
+                <Square :size="16" />
                 Border Radius: {{ borderRadius }}px
               </label>
               <input type="range" v-model="borderRadius" min="0" max="40" step="2" class="range-input" />
@@ -1279,10 +1236,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="2" y="2" width="20" height="20" rx="2" ry="2"/>
-                  <path d="M7 7h10v10H7z"/>
-                </svg>
+                <Move :size="16" />
                 Card Padding: {{ cardPadding }}px
               </label>
               <input type="range" v-model="cardPadding" min="0" max="40" step="2" class="range-input" />
@@ -1294,11 +1248,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                  <circle cx="8.5" cy="8.5" r="1.5"/>
-                  <path d="M21 15l-5-5L5 21"/>
-                </svg>
+                <Image :size="16" />
                 Image Padding: {{ imagePadding }}px
               </label>
               <input type="range" v-model="imagePadding" min="0" max="40" step="2" class="range-input" />
@@ -1310,14 +1260,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="8" y1="6" x2="21" y2="6"/>
-                  <line x1="8" y1="12" x2="21" y2="12"/>
-                  <line x1="8" y1="18" x2="21" y2="18"/>
-                  <line x1="3" y1="6" x2="3.01" y2="6"/>
-                  <line x1="3" y1="12" x2="3.01" y2="12"/>
-                  <line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
+                <AlignLeft :size="16" />
                 Content Padding: {{ contentPadding }}px
               </label>
               <input type="range" v-model="contentPadding" min="0" max="40" step="2" class="range-input" />
@@ -1333,25 +1276,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('dimensions')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-              </svg>
+              <RectangleHorizontal :size="20" />
               <h3 class="section-title">Card Dimensions</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.dimensions }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.dimensions }]" />
           </button>
           
           <div v-show="sectionsOpen.dimensions" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="3" y1="12" x2="21" y2="12"/>
-                  <polyline points="8 8 4 12 8 16"/>
-                  <polyline points="16 16 20 12 16 8"/>
-                </svg>
+                <ArrowLeftRight :size="16" />
                 Card Width: {{ cardWidth }}px
               </label>
               <input type="range" v-model="cardWidth" min="200" max="500" step="10" class="range-input" />
@@ -1363,11 +1297,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="3" x2="12" y2="21"/>
-                  <polyline points="8 8 12 4 16 8"/>
-                  <polyline points="16 16 12 20 8 16"/>
-                </svg>
+                <ArrowUpDown :size="16" />
                 Card Height: {{ cardHeight }}px
               </label>
               <input type="range" v-model="cardHeight" min="400" max="700" step="10" class="range-input" />
@@ -1383,26 +1313,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('spacing')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7"/>
-                <rect x="14" y="14" width="7" height="7"/>
-              </svg>
+              <Move :size="20" />
               <h3 class="section-title">Spacing</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.spacing }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.spacing }]" />
           </button>
           
           <div v-show="sectionsOpen.spacing" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="7" height="7"/>
-                  <rect x="14" y="3" width="7" height="7"/>
-                  <rect x="14" y="14" width="7" height="7"/>
-                  <rect x="3" y="14" width="7" height="7"/>
-                </svg>
+                <LayoutGrid :size="16" />
                 Card Gap: {{ cardGap }}px
               </label>
               <input type="range" v-model="cardGap" min="0" max="80" step="4" class="range-input" />
@@ -1414,9 +1334,7 @@ const setColorValue = (key, value) => {
 
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="5" y="5" width="14" height="14" rx="2" ry="2"/>
-                </svg>
+                <Square :size="16" />
                 Card Margin: {{ cardMargin }}px
               </label>
               <input type="range" v-model="cardMargin" min="0" max="40" step="2" class="range-input" />
@@ -1432,15 +1350,10 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('background')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <path d="M3 9h18M9 21V9"/>
-              </svg>
+              <PanelRight :size="20" />
               <h3 class="section-title">Background</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.background }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.background }]" />
           </button>
           
           <div v-show="sectionsOpen.background" class="section-content">
@@ -1448,38 +1361,23 @@ const setColorValue = (key, value) => {
               <label class="form-label">Background Type</label>
               <div class="background-type-grid">
                 <button :class="['type-btn', { active: backgroundType === 'none' }]" @click="selectBackgroundType('none')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                  </svg>
+                  <Ban :size="20" />
                   None
                 </button>
                 <button :class="['type-btn', { active: backgroundType === 'gradient' }]" @click="selectBackgroundType('gradient')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <path d="M3 9h18M9 21V9"/>
-                  </svg>
+                  <Blend :size="20" />
                   Gradient
                 </button>
                 <button :class="['type-btn', { active: backgroundType === 'color' }]" @click="selectBackgroundType('color')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 2v20"/>
-                  </svg>
+                  <CircleDot :size="20" />
                   Color
                 </button>
                 <button :class="['type-btn', { active: backgroundType === 'image' }]" @click="selectBackgroundType('image')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <circle cx="8.5" cy="8.5" r="1.5"/>
-                    <path d="M21 15l-5-5L5 21"/>
-                  </svg>
+                  <ImageIcon :size="20" />
                   Image
                 </button>
                 <button :class="['type-btn', { active: backgroundType === 'video' }]" @click="selectBackgroundType('video')">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="5 3 19 12 5 21 5 3"/>
-                  </svg>
+                  <Play :size="20" />
                   Video
                 </button>
               </div>
@@ -1500,9 +1398,7 @@ const setColorValue = (key, value) => {
                   <option value="default-gradient-9">Peachy</option>
                   <option value="default-gradient-10">Mint Fresh</option>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -1519,11 +1415,7 @@ const setColorValue = (key, value) => {
               <div class="upload-wrapper">
                 <input type="file" accept="image/*" @change="handleImageUpload" class="file-input" id="image-upload" />
                 <label for="image-upload" class="upload-btn">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                  </svg>
+                  <Upload :size="20" />
                   Choose Image
                 </label>
                 <div v-if="customBackgroundImage" class="preview-thumbnail">
@@ -1537,11 +1429,7 @@ const setColorValue = (key, value) => {
               <div class="upload-wrapper">
                 <input type="file" accept="video/*" @change="handleVideoUpload" class="file-input" id="video-upload" />
                 <label for="video-upload" class="upload-btn">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                  </svg>
+                  <Upload :size="20" />
                   Choose Video
                 </label>
                 <div v-if="customBackgroundVideo" class="preview-thumbnail video-preview">
@@ -1557,14 +1445,10 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('colors')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
-              </svg>
+              <Droplets :size="20" />
               <h3 class="section-title">Theme Colors</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.colors }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.colors }]" />
           </button>
           
           <div v-show="sectionsOpen.colors" class="section-content">
@@ -1617,18 +1501,10 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('cardColors')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="13.5" cy="6.5" r=".5"/>
-                <circle cx="17.5" cy="10.5" r=".5"/>
-                <circle cx="8.5" cy="7.5" r=".5"/>
-                <circle cx="6.5" cy="12.5" r=".5"/>
-                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-              </svg>
+              <Paintbrush :size="20" />
               <h3 class="section-title">{{ currentStyle }} Colors</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.cardColors }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.cardColors }]" />
           </button>
           
           <div v-show="sectionsOpen.cardColors" class="section-content">
@@ -1647,22 +1523,16 @@ const setColorValue = (key, value) => {
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('animation')">
             <div class="section-header-left">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
+              <Clapperboard :size="20" />
               <h3 class="section-title">Animation</h3>
             </div>
-            <svg :class="['chevron-icon', { rotated: sectionsOpen.animation }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
+            <ChevronDown :size="20" :class="['chevron-icon', { rotated: sectionsOpen.animation }]" />
           </button>
           
           <div v-show="sectionsOpen.animation" class="section-content">
             <div class="form-group">
               <label class="form-label">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="5 3 19 12 5 21 5 3"/>
-                </svg>
+                <Play :size="16" />
                 Entrance Animation
               </label>
               <div class="dropdown-wrapper enhanced-dropdown">
@@ -1698,9 +1568,7 @@ const setColorValue = (key, value) => {
                     <option value="glitch">⚠️ Glitch Effect</option>
                   </optgroup>
                 </select>
-                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <ChevronDown :size="16" class="dropdown-icon" />
               </div>
             </div>
 
@@ -1723,6 +1591,27 @@ const setColorValue = (key, value) => {
             </div>
 
             <div class="form-group">
+              <label class="form-label">
+                <ArrowLeftRight :size="16" />
+                Scroll Direction
+              </label>
+              <div class="scroll-direction-grid">
+                <button :class="['direction-btn', { active: scrollDirection === 'left' }]" @click="scrollDirection = 'left'">
+                  <ArrowLeftRight :size="18" style="transform: scaleX(-1)" />
+                  Left
+                </button>
+                <button :class="['direction-btn', { active: scrollDirection === 'right' }]" @click="scrollDirection = 'right'">
+                  <ArrowLeftRight :size="18" />
+                  Right
+                </button>
+                <button :class="['direction-btn', { active: scrollDirection === 'both' }]" @click="scrollDirection = 'both'">
+                  <ArrowUpDown :size="18" style="transform: rotate(90deg)" />
+                  Both
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
               <label class="form-label">Scroll Speed: {{ scrollSpeed }}x</label>
               <input type="range" v-model="scrollSpeed" @input="updateSpeed(scrollSpeed)" min="0.1" max="5" step="0.1" class="range-input" />
               <div class="range-labels">
@@ -1735,12 +1624,7 @@ const setColorValue = (key, value) => {
 
         <!-- Reset Button -->
         <button class="reset-btn" @click="resetSettings" style="margin-top: 1.5rem">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-            <path d="M21 3v5h-5"/>
-            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-            <path d="M3 21v-5h5"/>
-          </svg>
+          <RotateCcw :size="18" />
           Reset All Settings
         </button>
       </div>
@@ -2154,6 +2038,7 @@ const setColorValue = (key, value) => {
   pointer-events: none;
   color: #9ca3af;
   transition: color 0.3s ease;
+  z-index: 1;
 }
 
 .dropdown-wrapper:hover .dropdown-icon {
@@ -2974,5 +2859,46 @@ const setColorValue = (key, value) => {
 .mapping-chip:not(.mapped) .chip-col {
   color: #9ca3af;
   font-style: italic;
+}
+
+.scroll-direction-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.direction-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 0.5rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.direction-btn:hover {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-color: var(--primary-color, #667eea);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.direction-btn.active {
+  background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.direction-btn svg {
+  width: 18px;
+  height: 18px;
 }
 </style>

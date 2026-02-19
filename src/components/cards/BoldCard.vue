@@ -16,7 +16,10 @@
     <!-- Section 3: Title/Category Block -->
     <div class="bold-title-section">
       <h3 class="bold-title">{{ card.title }}</h3>
-      <span v-if="showCategory" class="bold-category">{{ card.category }}</span>
+      <span v-if="showCategory" class="bold-category">
+        <CategoryIcon :category="card.category" :size="11" class="bold-category-icon" />
+        {{ card.category }}
+      </span>
     </div>
 
     <!-- Section 4: Description Block -->
@@ -33,6 +36,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import CategoryIcon from '../CategoryIcon.vue';
 
 const props = defineProps({
   card: { type: Object, required: true },
@@ -190,6 +194,13 @@ const secondaryColorRgba = computed(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bold-category-icon {
+  flex-shrink: 0;
 }
 
 /* Section 4: Description */

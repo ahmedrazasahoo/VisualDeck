@@ -12,6 +12,7 @@
       </div>
       <div class="card-right-section">
         <div v-if="showCategory" class="card-category-block">
+          <CategoryIcon :category="card.category" :size="12" class="category-icon" />
           <span class="category-text">{{ card.category }}</span>
         </div>
         <div class="card-header-section">
@@ -30,6 +31,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import CategoryIcon from '../CategoryIcon.vue';
 
 const props = defineProps({
   card: {
@@ -303,7 +305,15 @@ const secondaryColorRgba = computed(() => {
   padding: 0.6rem 1rem;
   margin-bottom: 1rem;
   border-radius: 8px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.category-icon {
+  color: white;
+  flex-shrink: 0;
 }
 
 .category-text {

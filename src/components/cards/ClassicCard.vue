@@ -9,6 +9,7 @@
       <div v-if="showIdBadge" class="card-id-corner">#{{ card.id }}</div>
       <div class="card-content-overlay">
         <div v-if="showCategory" class="card-category-tag">
+          <CategoryIcon :category="card.category" :size="11" class="category-tag-icon" />
           <span>{{ card.category }}</span>
         </div>
         <h3 class="card-title-overlay">{{ card.title }}</h3>
@@ -28,6 +29,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import CategoryIcon from '../CategoryIcon.vue';
 
 const props = defineProps({
   card: {
@@ -205,7 +207,9 @@ const secondaryColorRgba = computed(() => {
 }
 
 .card-category-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: rgba(255, 255, 255, 0.95);
   color: #333;
   padding: 0.4rem 1rem;
@@ -215,6 +219,11 @@ const secondaryColorRgba = computed(() => {
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 0.75rem;
+}
+
+.category-tag-icon {
+  flex-shrink: 0;
+  color: #555;
 }
 
 .card-title-overlay {

@@ -61,7 +61,8 @@ const props = defineProps({
   cardDescriptionColor: { type: String, default: '#444444' },
   cardPriceColor: { type: String, default: '#222222' },
   cardCategoryBgColor: { type: String, default: '#667eea' },
-  cardBadgeColor: { type: String, default: '#333333' }
+  cardBadgeColor: { type: String, default: '#333333' },
+  cardGlassOverlayBgColor: { type: String, default: 'rgba(255, 255, 255, 0.3)' }
 });
 
 const hexToRgb = (hex) => {
