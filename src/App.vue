@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import CardSlider from './components/CardSlider.vue';
+import * as XLSX from 'xlsx';
 
 const cardStyles = ['fullwidth-zigzag', 'fullwidth-wave', 'fullwidth-curved', 'layered-block', 'geometric-block', 'curved-block', 'staggered', 'wave', 'striped', 'zigzag', 'corner', 'circular', 'ribbon', 'modern', 'classic', 'minimal', 'elegant', 'bold', 'compact', 'luxury', 'vibrant', 'shadow', 'gradient', 'neon', 'glassmorphism', 'neumorphism', 'metro', 'polaroid', 'magazine', 'stacked', 'retro', 'split', 'diagonal', 'overlap', 'sidebar', 'floating'];
 
@@ -46,7 +47,7 @@ const leftSpacing = ref(6);
 
 // Collapsible section states
 const sectionsOpen = ref({
-  design: true,
+  design: false,
   sections: false,
   typography: false,
   styling: false,
@@ -55,7 +56,9 @@ const sectionsOpen = ref({
   background: false,
   colors: false,
   cardColors: false,
-  animation: false
+  animation: false,
+  dataFetch: true,
+  columnMapping: false
 });
 
 // Background controls
@@ -137,6 +140,169 @@ const updateSecondaryColor = (color) => {
 const updateSpeed = (speed) => {
   scrollSpeed.value = parseFloat(speed);
 };
+
+// Data fetching
+const fetchUrl = ref('');
+const fetchedData = ref(null);
+const isFetching = ref(false);
+const tableHeaders = ref([]);
+const tableRows = ref([]);
+const showDataTable = ref(false);
+const selectedRows = ref([]);
+
+// Column mapping
+const colTitle = ref('');
+const colImage = ref('');
+const colDescription = ref('');
+const colBadge = ref('');
+const colType = ref('');
+const colPrice = ref('');
+
+const parseCSV = (text) => {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"') {
+      if (inQuotes && text[i + 1] === '"') { cell += '"'; i++; }
+      else { inQuotes = !inQuotes; }
+    } else if (ch === ',' && !inQuotes) {
+      row.push(cell.trim()); cell = '';
+    } else if ((ch === '\n' || (ch === '\r' && text[i + 1] === '\n')) && !inQuotes) {
+      if (ch === '\r') i++;
+      row.push(cell.trim()); rows.push(row); row = []; cell = '';
+    } else {
+      cell += ch;
+    }
+  }
+  if (cell || row.length) { row.push(cell.trim()); rows.push(row); }
+  return rows.filter(r => r.some(c => c !== ''));
+};
+
+const toGoogleSheetsCsvUrl = (url) => {
+  const match = url.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (!match) return null;
+  const id = match[1];
+  const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
+  const gid = gidMatch ? gidMatch[1] : '0';
+  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`;
+};
+
+const applyParsedData = (jsonData) => {
+  tableHeaders.value = jsonData[0];
+  tableRows.value = jsonData.slice(1);
+  fetchedData.value = jsonData;
+  showDataTable.value = true;
+  const headers = jsonData[0].map(h => String(h));
+  const find = (...names) => {
+    // First try exact match (case-insensitive)
+    const exact = headers.find(h => names.some(n => h.toLowerCase() === n.toLowerCase()));
+    if (exact) return exact;
+    // Then try includes match
+    return headers.find(h => names.some(n => h.toLowerCase().includes(n.toLowerCase()))) || '';
+  };
+  colTitle.value = find('title', 'name', 'product');
+  colImage.value = find('images', 'image', 'img', 'photo', 'picture', 'url');
+  colDescription.value = find('description', 'desc', 'detail', 'text');
+  colBadge.value = find('selectid', 'select id', 'select_id', 'badge', 'id', 'no', 'number', '#');
+  colType.value = find('type', 'category', 'cat', 'tag');
+  colPrice.value = find('price', 'cost', 'amount');
+  selectedRows.value = jsonData.slice(1).map((_, i) => i);
+  sectionsOpen.value.columnMapping = true;
+};
+
+const fetchData = async () => {
+  if (!fetchUrl.value.trim()) {
+    alert('Please enter a URL');
+    return;
+  }
+
+  isFetching.value = true;
+  try {
+    const raw = fetchUrl.value.trim();
+    const isGoogleSheets = raw.includes('docs.google.com/spreadsheets');
+
+    if (isGoogleSheets) {
+      const csvUrl = toGoogleSheetsCsvUrl(raw);
+      if (!csvUrl) throw new Error('Could not parse Google Sheets URL. Make sure the link is shared publicly.');
+      const response = await fetch(csvUrl);
+      if (!response.ok) throw new Error(`Failed to fetch sheet (${response.status}). Make sure the sheet is shared as "Anyone with the link can view".`);
+      const text = await response.text();
+      const jsonData = parseCSV(text);
+      if (jsonData.length > 0) {
+        applyParsedData(jsonData);
+        alert('Data fetched successfully!');
+      } else {
+        alert('No data found in spreadsheet.');
+      }
+    } else if (raw.endsWith('.csv')) {
+      const response = await fetch(raw);
+      if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+      const text = await response.text();
+      const jsonData = parseCSV(text);
+      if (jsonData.length > 0) {
+        applyParsedData(jsonData);
+        alert('Data fetched successfully!');
+      } else {
+        alert('No data found in CSV file.');
+      }
+    } else {
+      const response = await fetch(raw);
+      if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      if (jsonData.length > 0) {
+        applyParsedData(jsonData);
+        alert('Data fetched successfully!');
+      } else {
+        alert('No data found in Excel file.');
+      }
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+    console.error('Fetch error:', error);
+  } finally {
+    isFetching.value = false;
+  }
+};
+
+const toggleRowSelection = (rowIndex) => {
+  const index = selectedRows.value.indexOf(rowIndex);
+  if (index > -1) {
+    selectedRows.value.splice(index, 1);
+  } else {
+    selectedRows.value.push(rowIndex);
+  }
+};
+
+const isRowSelected = (rowIndex) => {
+  return selectedRows.value.includes(rowIndex);
+};
+
+const hasSelectedRows = computed(() => {
+  return selectedRows.value.length > 0;
+});
+
+const mappedCardItems = computed(() => {
+  if (!hasSelectedRows.value || !tableHeaders.value.length) return null;
+  const headers = tableHeaders.value.map(h => String(h));
+  const idx = col => headers.indexOf(col);
+  return selectedRows.value.map((rowIndex, i) => {
+    const row = tableRows.value[rowIndex];
+    if (!row) return null;
+    return {
+      id: i + 1,
+      title: colTitle.value ? row[idx(colTitle.value)] ?? '' : '',
+      image: colImage.value ? row[idx(colImage.value)] ?? '' : '',
+      description: colDescription.value ? row[idx(colDescription.value)] ?? '' : '',
+      category: colType.value ? row[idx(colType.value)] ?? '' : '',
+      price: colPrice.value ? row[idx(colPrice.value)] ?? '' : '',
+      badge: colBadge.value ? row[idx(colBadge.value)] ?? '' : i + 1,
+    };
+  }).filter(Boolean);
+});
 
 const resetSettings = () => {
   headingFontSize.value = 1.15;
@@ -548,8 +714,46 @@ const setColorValue = (key, value) => {
 
 <template>
   <div class="app-container" :style="{ '--primary-color': primaryColor, '--secondary-color': secondaryColor }">
-    <main class="app-main">
+    <!-- Data Table on Left Side -->
+    <div v-if="showDataTable" class="data-table-container">
+      <div class="data-table-header">
+        <h3 class="data-table-title">Fetched Excel Data</h3>
+        <button class="close-table-btn" @click="showDataTable = false" title="Close table">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="data-table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="checkbox-column">Select</th>
+              <th v-for="(header, index) in tableHeaders" :key="index">{{ header }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, rowIndex) in tableRows" :key="rowIndex" :class="{ 'selected-row': isRowSelected(rowIndex) }">
+              <td class="checkbox-column">
+                <input
+                  type="checkbox"
+                  :checked="isRowSelected(rowIndex)"
+                  @change="toggleRowSelection(rowIndex)"
+                  class="row-checkbox"
+                />
+              </td>
+              <td v-for="(cell, cellIndex) in row" :key="cellIndex">{{ cell }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <main class="app-main" :class="{ 'with-table': showDataTable && hasSelectedRows }">
       <CardSlider
+        v-if="!showDataTable || hasSelectedRows"
+        :items="mappedCardItems"
         :card-style="currentStyle"
         :primary-color="primaryColor"
         :secondary-color="secondaryColor"
@@ -626,6 +830,175 @@ const setColorValue = (key, value) => {
       </div>
 
       <div class="panel-content">
+        <!-- Data Fetching Section -->
+        <div class="collapsible-section">
+          <button class="section-header" @click="toggleSection('dataFetch')">
+            <div class="section-header-left">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <h3 class="section-title">Fetch Excel Data</h3>
+            </div>
+            <svg :class="['chevron-icon', { rotated: sectionsOpen.dataFetch }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div v-show="sectionsOpen.dataFetch" class="section-content">
+            <div class="form-group">
+              <label class="form-label">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                Public Excel File URL
+              </label>
+              <input
+                type="text"
+                v-model="fetchUrl"
+                placeholder="https://example.com/file.xlsx"
+                class="text-input"
+                :disabled="isFetching"
+              />
+            </div>
+
+            <button class="fetch-btn" @click="fetchData" :disabled="isFetching">
+              <svg v-if="!isFetching" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <svg v-else class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+              </svg>
+              {{ isFetching ? 'Fetching...' : 'Fetch Excel Data' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Column Mapping Section -->
+        <div v-if="showDataTable && tableHeaders.length" class="collapsible-section">
+          <button class="section-header" @click="toggleSection('columnMapping')">
+            <div class="section-header-left">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <line x1="3" y1="9" x2="21" y2="9"/>
+                <line x1="3" y1="15" x2="21" y2="15"/>
+                <line x1="9" y1="3" x2="9" y2="21"/>
+              </svg>
+              <h3 class="section-title">Column Mapping</h3>
+            </div>
+            <svg :class="['chevron-icon', { rotated: sectionsOpen.columnMapping }]" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+
+          <div v-show="sectionsOpen.columnMapping" class="section-content">
+            <p class="section-description">Map your Excel columns to each card field. Auto-detected from your headers.</p>
+
+            <div class="form-group">
+              <label class="form-label">ID / Badge Column</label>
+              <div class="dropdown-wrapper">
+                <select v-model="colBadge" class="dropdown-select">
+                  <option value="">— None —</option>
+                  <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
+                </select>
+                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Image URL Column</label>
+              <div class="dropdown-wrapper">
+                <select v-model="colImage" class="dropdown-select">
+                  <option value="">— None —</option>
+                  <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
+                </select>
+                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Title Column</label>
+              <div class="dropdown-wrapper">
+                <select v-model="colTitle" class="dropdown-select">
+                  <option value="">— None —</option>
+                  <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
+                </select>
+                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Description Column</label>
+              <div class="dropdown-wrapper">
+                <select v-model="colDescription" class="dropdown-select">
+                  <option value="">— None —</option>
+                  <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
+                </select>
+                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Category / Type Column</label>
+              <div class="dropdown-wrapper">
+                <select v-model="colType" class="dropdown-select">
+                  <option value="">— None —</option>
+                  <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
+                </select>
+                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Price Column</label>
+              <div class="dropdown-wrapper">
+                <select v-model="colPrice" class="dropdown-select">
+                  <option value="">— None —</option>
+                  <option v-for="h in tableHeaders" :key="h" :value="h">{{ h }}</option>
+                </select>
+                <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <div class="mapping-summary">
+              <div class="mapping-chip" :class="{ mapped: colBadge }">
+                <span class="chip-field">ID</span>
+                <span class="chip-arrow">→</span>
+                <span class="chip-col">{{ colBadge || 'not set' }}</span>
+              </div>
+              <div class="mapping-chip" :class="{ mapped: colImage }">
+                <span class="chip-field">Image</span>
+                <span class="chip-arrow">→</span>
+                <span class="chip-col">{{ colImage || 'not set' }}</span>
+              </div>
+              <div class="mapping-chip" :class="{ mapped: colTitle }">
+                <span class="chip-field">Title</span>
+                <span class="chip-arrow">→</span>
+                <span class="chip-col">{{ colTitle || 'not set' }}</span>
+              </div>
+              <div class="mapping-chip" :class="{ mapped: colDescription }">
+                <span class="chip-field">Description</span>
+                <span class="chip-arrow">→</span>
+                <span class="chip-col">{{ colDescription || 'not set' }}</span>
+              </div>
+              <div class="mapping-chip" :class="{ mapped: colType }">
+                <span class="chip-field">Category</span>
+                <span class="chip-arrow">→</span>
+                <span class="chip-col">{{ colType || 'not set' }}</span>
+              </div>
+              <div class="mapping-chip" :class="{ mapped: colPrice }">
+                <span class="chip-field">Price</span>
+                <span class="chip-arrow">→</span>
+                <span class="chip-col">{{ colPrice || 'not set' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Design Section -->
         <div class="collapsible-section">
           <button class="section-header" @click="toggleSection('design')">
@@ -1361,7 +1734,7 @@ const setColorValue = (key, value) => {
         </div>
 
         <!-- Reset Button -->
-        <button class="reset-btn" @click="resetSettings">
+        <button class="reset-btn" @click="resetSettings" style="margin-top: 1.5rem">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
             <path d="M21 3v5h-5"/>
@@ -1383,6 +1756,114 @@ const setColorValue = (key, value) => {
   min-height: 100vh;
   background: #f5f7fa;
   position: relative;
+  display: flex;
+}
+
+.data-table-container {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.data-table-header {
+  padding: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, var(--secondary-color, #764ba2) 100%);
+}
+
+.data-table-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.close-table-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.close-table-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.data-table-wrapper {
+  flex: 1;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.data-table thead {
+  position: sticky;
+  top: 0;
+  background: #f9fafb;
+  z-index: 10;
+}
+
+.data-table th {
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.data-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.checkbox-column {
+  width: 60px;
+  text-align: center;
+}
+
+.row-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary-color, #667eea);
+}
+
+.selected-row {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.selected-row:hover {
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .app-main {
@@ -1391,6 +1872,12 @@ const setColorValue = (key, value) => {
   justify-content: center;
   min-height: 100vh;
   padding: 2rem 0;
+  flex: 1;
+  transition: margin-left 0.3s ease;
+}
+
+.app-main.with-table {
+  margin-left: 400px;
 }
 
 .settings-btn {
@@ -1852,6 +2339,81 @@ const setColorValue = (key, value) => {
   font-size: 0.75rem;
   color: #9ca3af;
   font-weight: 500;
+}
+
+.text-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #374151;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  font-family: inherit;
+}
+
+.text-input:focus {
+  border-color: var(--primary-color, #667eea);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.text-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.text-input::placeholder {
+  color: #9ca3af;
+}
+
+.fetch-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.fetch-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.fetch-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.fetch-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.fetch-btn .spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .reset-btn {
@@ -2358,5 +2920,59 @@ const setColorValue = (key, value) => {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.mapping-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.mapping-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.mapping-chip.mapped {
+  border-color: var(--primary-color, #667eea);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.chip-field {
+  font-weight: 700;
+  color: #374151;
+  min-width: 72px;
+}
+
+.chip-arrow {
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.chip-col {
+  color: var(--primary-color, #667eea);
+  font-weight: 600;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  font-size: 0.78rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mapping-chip:not(.mapped) .chip-col {
+  color: #9ca3af;
+  font-style: italic;
 }
 </style>

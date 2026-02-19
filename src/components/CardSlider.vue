@@ -39,6 +39,10 @@ import FullWidthWaveCard from './cards/FullWidthWaveCard.vue';
 import FullWidthCurvedCard from './cards/FullWidthCurvedCard.vue';
 
 const props = defineProps({
+  items: {
+    type: Array,
+    default: null
+  },
   cardStyle: {
     type: String,
     default: 'modern'
@@ -294,6 +298,8 @@ const cardComponents = {
 
 const currentCardComponent = computed(() => cardComponents[props.cardStyle] || ModernCard);
 
+const displayCards = computed(() => props.items && props.items.length ? props.items : cardsData);
+
 const backgroundGradients = {
   'default-gradient-1': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   'default-gradient-2': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
@@ -364,7 +370,7 @@ const calculateCardsToFit = () => {
   const screenWidth = window.innerWidth;
   const totalCardWidth = props.cardWidth + props.cardGap + (props.cardMargin * 2);
   const cardsThatFit = Math.floor(screenWidth / totalCardWidth);
-  return Math.min(cardsThatFit, cardsData.length);
+  return Math.min(cardsThatFit, displayCards.value.length);
 };
 
 const playEntranceAnimation = () => {
@@ -514,7 +520,7 @@ onUnmounted(() => {
       <!-- Duplicate cards for infinite loop effect -->
       <template v-for="n in 2" :key="`set-${n}-${cardStyle}`">
         <div
-          v-for="(card, index) in cardsData"
+          v-for="(card, index) in displayCards"
           :key="`${cardStyle}-${n}-${card.id}`"
           :class="[
             'card-wrapper',
