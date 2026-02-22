@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import CardSlider from './components/CardSlider.vue';
 import * as XLSX from 'xlsx';
 import {
@@ -39,6 +39,27 @@ import {
   PanelRight,
   ScanLine,
   Wand2,
+  Zap,
+  Waves,
+  Wind,
+  Shapes,
+  Sparkles,
+  Moon,
+  LayoutDashboard,
+  CornerDownRight,
+  Circle,
+  Bookmark,
+  Slash,
+  Layers2,
+  BookOpen,
+  Minus,
+  Bold,
+  Crown,
+  Clock,
+  Camera,
+  Newspaper,
+  Building2,
+  Scissors,
 } from 'lucide-vue-next';
 
 const cardStyles = ['fullwidth-zigzag', 'fullwidth-wave', 'fullwidth-curved', 'layered-block', 'geometric-block', 'curved-block', 'staggered', 'wave', 'striped', 'zigzag', 'corner', 'circular', 'ribbon', 'modern', 'classic', 'minimal', 'elegant', 'bold', 'compact', 'luxury', 'vibrant', 'shadow', 'gradient', 'neon', 'glassmorphism', 'neumorphism', 'metro', 'polaroid', 'magazine', 'stacked', 'retro', 'split', 'diagonal', 'overlap', 'sidebar', 'floating'];
@@ -71,6 +92,103 @@ const imageShapes = [
 ];
 
 const currentStyle = ref('fullwidth-zigzag');
+const showStyleDropdown = ref(false);
+
+const cardStyleGroups = [
+  {
+    label: 'Full Width Cards',
+    options: [
+      { value: 'fullwidth-zigzag', label: 'Full Width Zigzag', icon: Zap },
+      { value: 'fullwidth-wave', label: 'Full Width Wave', icon: Waves },
+      { value: 'fullwidth-curved', label: 'Full Width Curved', icon: Wind },
+    ],
+  },
+  {
+    label: 'Block Cards',
+    options: [
+      { value: 'layered-block', label: 'Layered Block', icon: Layers },
+      { value: 'geometric-block', label: 'Geometric Block', icon: Shapes },
+      { value: 'curved-block', label: 'Curved Block', icon: Boxes },
+    ],
+  },
+  {
+    label: 'Special Effects',
+    options: [
+      { value: 'glassmorphism', label: 'Glassmorphism', icon: Sparkles },
+      { value: 'neumorphism', label: 'Neumorphism', icon: CircleDot },
+      { value: 'neon', label: 'Neon', icon: Zap },
+      { value: 'gradient', label: 'Gradient', icon: Blend },
+      { value: 'shadow', label: 'Shadow', icon: Moon },
+    ],
+  },
+  {
+    label: 'Creative Designs',
+    options: [
+      { value: 'staggered', label: 'Staggered', icon: LayoutDashboard },
+      { value: 'wave', label: 'Wave', icon: Waves },
+      { value: 'striped', label: 'Striped', icon: AlignLeft },
+      { value: 'zigzag', label: 'Zigzag', icon: Zap },
+      { value: 'corner', label: 'Corner', icon: CornerDownRight },
+      { value: 'circular', label: 'Circular', icon: Circle },
+      { value: 'ribbon', label: 'Ribbon', icon: Bookmark },
+      { value: 'diagonal', label: 'Diagonal', icon: Slash },
+      { value: 'overlap', label: 'Overlap', icon: Layers2 },
+      { value: 'sidebar', label: 'Sidebar', icon: PanelRight },
+      { value: 'floating', label: 'Floating', icon: Move },
+    ],
+  },
+  {
+    label: 'Classic Styles',
+    options: [
+      { value: 'modern', label: 'Modern', icon: LayoutGrid },
+      { value: 'classic', label: 'Classic', icon: BookOpen },
+      { value: 'minimal', label: 'Minimal', icon: Minus },
+      { value: 'elegant', label: 'Elegant', icon: Star },
+      { value: 'bold', label: 'Bold', icon: Bold },
+      { value: 'compact', label: 'Compact', icon: Square },
+      { value: 'luxury', label: 'Luxury', icon: Crown },
+      { value: 'vibrant', label: 'Vibrant', icon: Palette },
+    ],
+  },
+  {
+    label: 'Vintage & Modern',
+    options: [
+      { value: 'retro', label: 'Retro', icon: Clock },
+      { value: 'polaroid', label: 'Polaroid', icon: Camera },
+      { value: 'magazine', label: 'Magazine', icon: Newspaper },
+      { value: 'metro', label: 'Metro', icon: Building2 },
+      { value: 'stacked', label: 'Stacked', icon: Layers },
+      { value: 'split', label: 'Split', icon: Scissors },
+    ],
+  },
+];
+
+const selectedStyleOption = computed(() => {
+  for (const group of cardStyleGroups) {
+    const found = group.options.find(o => o.value === currentStyle.value);
+    if (found) return found;
+  }
+  return null;
+});
+
+const toggleStyleDropdown = () => {
+  showStyleDropdown.value = !showStyleDropdown.value;
+};
+
+const pickStyle = (value) => {
+  selectCardStyle(value);
+  showStyleDropdown.value = false;
+};
+
+const closeStyleDropdown = (e) => {
+  if (!e.target.closest('.style-dropdown-container')) {
+    showStyleDropdown.value = false;
+  }
+};
+
+onMounted(() => document.addEventListener('click', closeStyleDropdown));
+onUnmounted(() => document.removeEventListener('click', closeStyleDropdown));
+
 const isPanelOpen = ref(false);
 const primaryColor = ref('#667eea');
 const secondaryColor = ref('#764ba2');
@@ -1020,58 +1138,29 @@ const setColorValue = (key, value) => {
                 <Layers :size="16" />
                 Card Style
               </label>
-              <div class="dropdown-wrapper enhanced-dropdown">
-                <select v-model="currentStyle" @change="selectCardStyle(currentStyle)" class="dropdown-select styled-select">
-                  <optgroup label="Full Width Cards">
-                    <option value="fullwidth-zigzag">Full Width Zigzag</option>
-                    <option value="fullwidth-wave">Full Width Wave</option>
-                    <option value="fullwidth-curved">Full Width Curved</option>
-                  </optgroup>
-                  <optgroup label="Block Cards">
-                    <option value="layered-block">Layered Block</option>
-                    <option value="geometric-block">Geometric Block</option>
-                    <option value="curved-block">Curved Block</option>
-                  </optgroup>
-                  <optgroup label="Special Effects">
-                    <option value="glassmorphism">Glassmorphism</option>
-                    <option value="neumorphism">Neumorphism</option>
-                    <option value="neon">Neon</option>
-                    <option value="gradient">Gradient</option>
-                    <option value="shadow">Shadow</option>
-                  </optgroup>
-                  <optgroup label="Creative Designs">
-                    <option value="staggered">Staggered</option>
-                    <option value="wave">Wave</option>
-                    <option value="striped">Striped</option>
-                    <option value="zigzag">Zigzag</option>
-                    <option value="corner">Corner</option>
-                    <option value="circular">Circular</option>
-                    <option value="ribbon">Ribbon</option>
-                    <option value="diagonal">Diagonal</option>
-                    <option value="overlap">Overlap</option>
-                    <option value="sidebar">Sidebar</option>
-                    <option value="floating">Floating</option>
-                  </optgroup>
-                  <optgroup label="Classic Styles">
-                    <option value="modern">Modern</option>
-                    <option value="classic">Classic</option>
-                    <option value="minimal">Minimal</option>
-                    <option value="elegant">Elegant</option>
-                    <option value="bold">Bold</option>
-                    <option value="compact">Compact</option>
-                    <option value="luxury">Luxury</option>
-                    <option value="vibrant">Vibrant</option>
-                  </optgroup>
-                  <optgroup label="Vintage & Modern">
-                    <option value="retro">Retro</option>
-                    <option value="polaroid">Polaroid</option>
-                    <option value="magazine">Magazine</option>
-                    <option value="metro">Metro</option>
-                    <option value="stacked">Stacked</option>
-                    <option value="split">Split</option>
-                  </optgroup>
-                </select>
-                <ChevronDown :size="16" class="dropdown-icon" />
+              <div class="style-dropdown-container">
+                <button type="button" class="style-dropdown-trigger" @click.stop="toggleStyleDropdown">
+                  <span class="style-dropdown-selected">
+                    <component :is="selectedStyleOption?.icon" :size="15" class="style-option-icon" />
+                    <span>{{ selectedStyleOption?.label }}</span>
+                  </span>
+                  <ChevronDown :size="15" :class="['style-dropdown-chevron', { rotated: showStyleDropdown }]" />
+                </button>
+                <div v-show="showStyleDropdown" class="style-dropdown-panel">
+                  <div v-for="group in cardStyleGroups" :key="group.label" class="style-dropdown-group">
+                    <div class="style-group-label">{{ group.label }}</div>
+                    <button
+                      v-for="option in group.options"
+                      :key="option.value"
+                      type="button"
+                      :class="['style-dropdown-option', { active: currentStyle === option.value }]"
+                      @click="pickStyle(option.value)"
+                    >
+                      <component :is="option.icon" :size="14" class="style-option-icon" />
+                      <span>{{ option.label }}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1537,35 +1626,35 @@ const setColorValue = (key, value) => {
               </label>
               <div class="dropdown-wrapper enhanced-dropdown">
                 <select v-model="entranceAnimation" class="dropdown-select styled-select">
-                  <option value="none">⛔ None</option>
-                  <optgroup label="⬆️ Flip Animations">
-                    <option value="flip-top">🔼 Flip From Top</option>
-                    <option value="flip-bottom">🔽 Flip From Bottom</option>
-                    <option value="3d-flip">🎲 3D Flip</option>
+                  <option value="none">None</option>
+                  <optgroup label="Flip Animations">
+                    <option value="flip-top">Flip From Top</option>
+                    <option value="flip-bottom">Flip From Bottom</option>
+                    <option value="3d-flip">3D Flip</option>
                   </optgroup>
-                  <optgroup label="➡️ Slide Animations">
-                    <option value="slide-left">⬅️ Slide From Left</option>
-                    <option value="slide-right">➡️ Slide From Right</option>
-                    <option value="slide-up">⬆️ Slide Up</option>
-                    <option value="slide-down">⬇️ Slide Down</option>
+                  <optgroup label="Slide Animations">
+                    <option value="slide-left">Slide From Left</option>
+                    <option value="slide-right">Slide From Right</option>
+                    <option value="slide-up">Slide Up</option>
+                    <option value="slide-down">Slide Down</option>
                   </optgroup>
-                  <optgroup label="🎯 Zoom & Rotate">
-                    <option value="zoom-in">🔍 Zoom In</option>
-                    <option value="rotate-in">🔄 Rotate In</option>
-                    <option value="spiral-in">🌀 Spiral In</option>
-                    <option value="tornado">🌪️ Tornado Spin</option>
+                  <optgroup label="Zoom & Rotate">
+                    <option value="zoom-in">Zoom In</option>
+                    <option value="rotate-in">Rotate In</option>
+                    <option value="spiral-in">Spiral In</option>
+                    <option value="tornado">Tornado Spin</option>
                   </optgroup>
-                  <optgroup label="🎪 Bounce & Swing">
-                    <option value="bounce-in">⚡ Bounce In</option>
-                    <option value="elastic-bounce">🎾 Elastic Bounce</option>
-                    <option value="swing-in">🎯 Swing In</option>
+                  <optgroup label="Bounce & Swing">
+                    <option value="bounce-in">Bounce In</option>
+                    <option value="elastic-bounce">Elastic Bounce</option>
+                    <option value="swing-in">Swing In</option>
                   </optgroup>
-                  <optgroup label="✨ Special Effects">
-                    <option value="fade-in">💫 Fade In Sequence</option>
-                    <option value="cascade">🌊 Cascade Fall</option>
-                    <option value="wave-in">〰️ Wave In</option>
-                    <option value="fold-unfold">📄 Fold & Unfold</option>
-                    <option value="glitch">⚠️ Glitch Effect</option>
+                  <optgroup label="Special Effects">
+                    <option value="fade-in">Fade In Sequence</option>
+                    <option value="cascade">Cascade Fall</option>
+                    <option value="wave-in">Wave In</option>
+                    <option value="fold-unfold">Fold & Unfold</option>
+                    <option value="glitch">Glitch Effect</option>
                   </optgroup>
                 </select>
                 <ChevronDown :size="16" class="dropdown-icon" />
@@ -1997,6 +2086,116 @@ const setColorValue = (key, value) => {
   width: 16px;
   height: 16px;
   color: var(--primary-color, #667eea);
+}
+
+.style-dropdown-container {
+  position: relative;
+}
+
+.style-dropdown-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.125rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+}
+
+.style-dropdown-trigger:hover {
+  border-color: var(--primary-color, #667eea);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.08);
+}
+
+.style-dropdown-selected {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.style-dropdown-chevron {
+  color: #9ca3af;
+  transition: transform 0.25s ease, color 0.25s ease;
+  flex-shrink: 0;
+}
+
+.style-dropdown-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.style-dropdown-trigger:hover .style-dropdown-chevron {
+  color: var(--primary-color, #667eea);
+}
+
+.style-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 200;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.375rem;
+}
+
+.style-dropdown-group {
+  margin-bottom: 0.25rem;
+}
+
+.style-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  padding: 0.45rem 0.625rem 0.25rem;
+}
+
+.style-dropdown-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #374151;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.style-dropdown-option:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.style-dropdown-option.active {
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--primary-color, #667eea);
+}
+
+.style-option-icon {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.style-dropdown-option.active .style-option-icon {
+  opacity: 1;
 }
 
 .dropdown-wrapper {

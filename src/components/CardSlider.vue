@@ -356,6 +356,7 @@ const cardsToAnimate = ref(0);
 let scrollPosition = 0;
 let isPaused = false;
 let bounceDirection = 1;
+let currentAnimationId = 0;
 
 const getHalfWidth = () => {
   if (!trackInner.value) return 0;
@@ -407,6 +408,8 @@ const calculateCardsToFit = () => {
 };
 
 const playEntranceAnimation = () => {
+  const myAnimationId = ++currentAnimationId;
+
   entranceAnimationComplete.value = false;
   animatedCardsCount.value = 0;
   cardsToAnimate.value = calculateCardsToFit();
@@ -416,8 +419,11 @@ const playEntranceAnimation = () => {
   applyTransform();
 
   const animateNextCard = (cardIndex) => {
+    if (myAnimationId !== currentAnimationId) return;
+
     if (cardIndex >= cardsToAnimate.value) {
       setTimeout(() => {
+        if (myAnimationId !== currentAnimationId) return;
         entranceAnimationComplete.value = true;
         isPaused = false;
       }, props.animationDelay);
@@ -548,7 +554,7 @@ onUnmounted(() => {
             'card-wrapper',
             {
               [`entrance-animation-${entranceAnimation}`]: entranceAnimation !== 'none' && n === 1 && index < animatedCardsCount && !entranceAnimationComplete,
-              'entrance-hidden': entranceAnimation !== 'none' && n === 1 && index >= animatedCardsCount && !entranceAnimationComplete
+              'entrance-hidden': entranceAnimation !== 'none' && !entranceAnimationComplete && (n === 2 || index >= animatedCardsCount)
             }
           ]"
         >
@@ -668,26 +674,28 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-flip-top {
   animation: flipTop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
+  transition: none;
 }
 
 @keyframes flipTop {
   0% {
     opacity: 0;
-    transform: translateY(-100vh) rotateY(90deg) scale(0.5);
+    transform: perspective(1000px) translateY(-100vh) rotateY(90deg) scale(0.5);
   }
   50% {
     opacity: 1;
-    transform: translateY(0) rotateY(45deg) scale(0.9);
+    transform: perspective(1000px) translateY(0) rotateY(45deg) scale(0.9);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateY(0deg) scale(1);
+    transform: perspective(1000px) translateY(0) rotateY(0deg) scale(1);
   }
 }
 
 /* Slide From Left Animation */
 .card-wrapper.entrance-animation-slide-left {
   animation: slideLeft 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes slideLeft {
@@ -704,6 +712,7 @@ onUnmounted(() => {
 /* Slide From Right Animation */
 .card-wrapper.entrance-animation-slide-right {
   animation: slideRight 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes slideRight {
@@ -720,6 +729,7 @@ onUnmounted(() => {
 /* Fade In Animation */
 .card-wrapper.entrance-animation-fade-in {
   animation: fadeIn 0.8s ease-in-out forwards;
+  transition: none;
 }
 
 @keyframes fadeIn {
@@ -736,6 +746,7 @@ onUnmounted(() => {
 /* Zoom In Animation */
 .card-wrapper.entrance-animation-zoom-in {
   animation: zoomIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes zoomIn {
@@ -757,6 +768,7 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-rotate-in {
   animation: rotateIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
+  transition: none;
 }
 
 @keyframes rotateIn {
@@ -773,6 +785,7 @@ onUnmounted(() => {
 /* Bounce In Animation */
 .card-wrapper.entrance-animation-bounce-in {
   animation: bounceIn 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  transition: none;
 }
 
 @keyframes bounceIn {
@@ -800,6 +813,7 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-spiral-in {
   animation: spiralIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
+  transition: none;
 }
 
 @keyframes spiralIn {
@@ -817,20 +831,21 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-cascade {
   animation: cascadeFall 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: top center;
+  transition: none;
 }
 
 @keyframes cascadeFall {
   0% {
     opacity: 0;
-    transform: translateY(-100vh) rotateX(-90deg) scale(0.5);
+    transform: perspective(1000px) translateY(-100vh) rotateX(-90deg) scale(0.5);
   }
   60% {
     opacity: 1;
-    transform: translateY(10px) rotateX(10deg) scale(1.05);
+    transform: perspective(1000px) translateY(10px) rotateX(10deg) scale(1.05);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateX(0deg) scale(1);
+    transform: perspective(1000px) translateY(0) rotateX(0deg) scale(1);
   }
 }
 
@@ -838,6 +853,7 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-swing-in {
   animation: swingIn 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: top center;
+  transition: none;
 }
 
 @keyframes swingIn {
@@ -865,26 +881,28 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-flip-bottom {
   animation: flipBottom 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
+  transition: none;
 }
 
 @keyframes flipBottom {
   0% {
     opacity: 0;
-    transform: translateY(100vh) rotateY(-90deg) scale(0.5);
+    transform: perspective(1000px) translateY(100vh) rotateY(-90deg) scale(0.5);
   }
   50% {
     opacity: 1;
-    transform: translateY(0) rotateY(-45deg) scale(0.9);
+    transform: perspective(1000px) translateY(0) rotateY(-45deg) scale(0.9);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateY(0deg) scale(1);
+    transform: perspective(1000px) translateY(0) rotateY(0deg) scale(1);
   }
 }
 
 /* Slide Up Animation */
 .card-wrapper.entrance-animation-slide-up {
   animation: slideUp 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes slideUp {
@@ -901,6 +919,7 @@ onUnmounted(() => {
 /* Slide Down Animation */
 .card-wrapper.entrance-animation-slide-down {
   animation: slideDown 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes slideDown {
@@ -917,6 +936,7 @@ onUnmounted(() => {
 /* Elastic Bounce Animation */
 .card-wrapper.entrance-animation-elastic-bounce {
   animation: elasticBounce 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  transition: none;
 }
 
 @keyframes elasticBounce {
@@ -943,28 +963,30 @@ onUnmounted(() => {
 /* 3D Flip Animation */
 .card-wrapper.entrance-animation-3d-flip {
   animation: flip3D 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  perspective: 1000px;
-  transform-style: preserve-3d;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+  transition: none;
 }
 
 @keyframes flip3D {
   0% {
     opacity: 0;
-    transform: rotateX(-180deg) rotateY(-180deg) scale(0.3);
+    transform: perspective(1000px) rotateX(-180deg) rotateY(-180deg) scale(0.3);
   }
   50% {
     opacity: 1;
-    transform: rotateX(-90deg) rotateY(-90deg) scale(0.8);
+    transform: perspective(1000px) rotateX(-90deg) rotateY(-90deg) scale(0.8);
   }
   100% {
     opacity: 1;
-    transform: rotateX(0deg) rotateY(0deg) scale(1);
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1);
   }
 }
 
 /* Wave In Animation */
 .card-wrapper.entrance-animation-wave-in {
   animation: waveIn 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes waveIn {
@@ -988,6 +1010,7 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-tornado {
   animation: tornado 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
+  transition: none;
 }
 
 @keyframes tornado {
@@ -1009,27 +1032,28 @@ onUnmounted(() => {
 .card-wrapper.entrance-animation-fold-unfold {
   animation: foldUnfold 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   transform-origin: center;
-  perspective: 1000px;
+  transition: none;
 }
 
 @keyframes foldUnfold {
   0% {
     opacity: 0;
-    transform: scaleY(0) rotateX(-90deg);
+    transform: perspective(1000px) scaleY(0) rotateX(-90deg);
   }
   50% {
     opacity: 1;
-    transform: scaleY(1) rotateX(10deg);
+    transform: perspective(1000px) scaleY(1) rotateX(10deg);
   }
   100% {
     opacity: 1;
-    transform: scaleY(1) rotateX(0deg);
+    transform: perspective(1000px) scaleY(1) rotateX(0deg);
   }
 }
 
 /* Glitch Effect Animation */
 .card-wrapper.entrance-animation-glitch {
   animation: glitch 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: none;
 }
 
 @keyframes glitch {
