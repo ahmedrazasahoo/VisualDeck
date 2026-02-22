@@ -1022,53 +1022,53 @@ const setColorValue = (key, value) => {
               </label>
               <div class="dropdown-wrapper enhanced-dropdown">
                 <select v-model="currentStyle" @change="selectCardStyle(currentStyle)" class="dropdown-select styled-select">
-                  <optgroup label="🎯 Full Width Cards">
-                    <option value="fullwidth-zigzag">⚡ Full Width Zigzag</option>
-                    <option value="fullwidth-wave">🌊 Full Width Wave</option>
-                    <option value="fullwidth-curved">🌀 Full Width Curved</option>
+                  <optgroup label="Full Width Cards">
+                    <option value="fullwidth-zigzag">Full Width Zigzag</option>
+                    <option value="fullwidth-wave">Full Width Wave</option>
+                    <option value="fullwidth-curved">Full Width Curved</option>
                   </optgroup>
-                  <optgroup label="🎨 Block Cards">
-                    <option value="layered-block">📚 Layered Block</option>
-                    <option value="geometric-block">🔷 Geometric Block</option>
-                    <option value="curved-block">🔶 Curved Block</option>
+                  <optgroup label="Block Cards">
+                    <option value="layered-block">Layered Block</option>
+                    <option value="geometric-block">Geometric Block</option>
+                    <option value="curved-block">Curved Block</option>
                   </optgroup>
-                  <optgroup label="✨ Special Effects">
-                    <option value="glassmorphism">💎 Glassmorphism</option>
-                    <option value="neumorphism">🎭 Neumorphism</option>
-                    <option value="neon">💫 Neon</option>
-                    <option value="gradient">🌈 Gradient</option>
-                    <option value="shadow">🌑 Shadow</option>
+                  <optgroup label="Special Effects">
+                    <option value="glassmorphism">Glassmorphism</option>
+                    <option value="neumorphism">Neumorphism</option>
+                    <option value="neon">Neon</option>
+                    <option value="gradient">Gradient</option>
+                    <option value="shadow">Shadow</option>
                   </optgroup>
-                  <optgroup label="🎪 Creative Designs">
-                    <option value="staggered">📐 Staggered</option>
-                    <option value="wave">〰️ Wave</option>
-                    <option value="striped">📊 Striped</option>
-                    <option value="zigzag">⚡ Zigzag</option>
-                    <option value="corner">📌 Corner</option>
-                    <option value="circular">⭕ Circular</option>
-                    <option value="ribbon">🎀 Ribbon</option>
-                    <option value="diagonal">📐 Diagonal</option>
-                    <option value="overlap">🔲 Overlap</option>
-                    <option value="sidebar">📑 Sidebar</option>
-                    <option value="floating">🎈 Floating</option>
+                  <optgroup label="Creative Designs">
+                    <option value="staggered">Staggered</option>
+                    <option value="wave">Wave</option>
+                    <option value="striped">Striped</option>
+                    <option value="zigzag">Zigzag</option>
+                    <option value="corner">Corner</option>
+                    <option value="circular">Circular</option>
+                    <option value="ribbon">Ribbon</option>
+                    <option value="diagonal">Diagonal</option>
+                    <option value="overlap">Overlap</option>
+                    <option value="sidebar">Sidebar</option>
+                    <option value="floating">Floating</option>
                   </optgroup>
-                  <optgroup label="🎯 Classic Styles">
-                    <option value="modern">🔲 Modern</option>
-                    <option value="classic">📖 Classic</option>
-                    <option value="minimal">⚪ Minimal</option>
-                    <option value="elegant">💎 Elegant</option>
-                    <option value="bold">💪 Bold</option>
-                    <option value="compact">📦 Compact</option>
-                    <option value="luxury">👑 Luxury</option>
-                    <option value="vibrant">🎨 Vibrant</option>
+                  <optgroup label="Classic Styles">
+                    <option value="modern">Modern</option>
+                    <option value="classic">Classic</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="elegant">Elegant</option>
+                    <option value="bold">Bold</option>
+                    <option value="compact">Compact</option>
+                    <option value="luxury">Luxury</option>
+                    <option value="vibrant">Vibrant</option>
                   </optgroup>
-                  <optgroup label="🎬 Vintage & Modern">
-                    <option value="retro">📼 Retro</option>
-                    <option value="polaroid">📷 Polaroid</option>
-                    <option value="magazine">📰 Magazine</option>
-                    <option value="metro">🏙️ Metro</option>
-                    <option value="stacked">📚 Stacked</option>
-                    <option value="split">✂️ Split</option>
+                  <optgroup label="Vintage & Modern">
+                    <option value="retro">Retro</option>
+                    <option value="polaroid">Polaroid</option>
+                    <option value="magazine">Magazine</option>
+                    <option value="metro">Metro</option>
+                    <option value="stacked">Stacked</option>
+                    <option value="split">Split</option>
                   </optgroup>
                 </select>
                 <ChevronDown :size="16" class="dropdown-icon" />

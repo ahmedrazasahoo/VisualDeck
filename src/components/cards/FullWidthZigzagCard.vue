@@ -18,7 +18,10 @@
     
     <div class="fullwidth-background zigzag-middle-bg">
       <div class="content-wrapper">
-        <div v-if="showCategory" class="zigzag-category">{{ card.category }}</div>
+        <div v-if="showCategory" class="zigzag-category">
+          <CategoryIcon :category="card.category" :size="14" class="zigzag-category-icon" />
+          <span>{{ card.category }}</span>
+        </div>
       </div>
     </div>
     
@@ -40,6 +43,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import CategoryIcon from '../CategoryIcon.vue';
 
 const props = defineProps({
   card: { type: Object, required: true },
@@ -180,12 +184,19 @@ const secondaryColorRgba = computed(() => {
 }
 
 .zigzag-category {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: var(--badge-size, 0.8rem);
   color: white;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
   text-align: center;
+}
+
+.zigzag-category-icon {
+  flex-shrink: 0;
 }
 
 .zigzag-description-bg {
